@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-30T00:00:00Z",
+  "title": "Design System: Forecast Check",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "primary", "displayName": "Gate Ink", "canonical": "oklch(0.18 0.012 270)", "tonalRamp": ["oklch(0.18 0.012 270)", "oklch(0.28 0.012 270)", "oklch(0.38 0.012 270)", "oklch(0.5 0.012 270)", "oklch(0.62 0.012 270)", "oklch(0.74 0.012 270)", "oklch(0.85 0.01 270)", "oklch(0.95 0.006 270)"] },
+      "primary-accent": { "role": "primary", "displayName": "Deep Teal", "canonical": "oklch(0.45 0.09 195)", "tonalRamp": [] },
+      "amber": { "role": "tertiary", "displayName": "Alert Orange", "canonical": "oklch(0.7 0.19 48)", "tonalRamp": ["oklch(0.2 0.19 48)", "oklch(0.3 0.17 48)", "oklch(0.4 0.15 48)", "oklch(0.5 0.16 48)", "oklch(0.6 0.19 48)", "oklch(0.7 0.19 48)", "oklch(0.82 0.12 55)", "oklch(0.95 0.04 62)"] },
+      "forecast": { "role": "secondary", "displayName": "Forecast Blue", "canonical": "oklch(0.5 0.15 255)", "tonalRamp": ["oklch(0.2 0.15 255)", "oklch(0.3 0.15 255)", "oklch(0.4 0.15 255)", "oklch(0.5 0.15 255)", "oklch(0.6 0.13 255)", "oklch(0.7 0.1 255)", "oklch(0.83 0.06 255)", "oklch(0.95 0.02 255)"] },
+      "ink-soft": { "role": "neutral", "displayName": "Soft Ink", "canonical": "oklch(0.42 0.012 270)", "tonalRamp": ["oklch(0.18 0.012 270)", "oklch(0.28 0.012 270)", "oklch(0.42 0.012 270)", "oklch(0.52 0.012 270)", "oklch(0.62 0.012 270)", "oklch(0.74 0.01 270)", "oklch(0.86 0.008 270)", "oklch(0.95 0.005 270)"] },
+      "paper": { "role": "neutral", "displayName": "Paper", "canonical": "oklch(1 0 0)", "tonalRamp": ["oklch(0.15 0 0)", "oklch(0.3 0 0)", "oklch(0.45 0 0)", "oklch(0.6 0 0)", "oklch(0.75 0 0)", "oklch(0.88 0 0)", "oklch(0.95 0 0)", "oklch(1 0 0)"] },
+      "wash": { "role": "neutral", "displayName": "Wash", "canonical": "oklch(0.975 0.004 270)", "tonalRamp": ["oklch(0.18 0.004 270)", "oklch(0.3 0.004 270)", "oklch(0.45 0.004 270)", "oklch(0.6 0.004 270)", "oklch(0.75 0.004 270)", "oklch(0.88 0.004 270)", "oklch(0.95 0.004 270)", "oklch(0.975 0.004 270)"] },
+      "rule": { "role": "neutral", "displayName": "Rule", "canonical": "oklch(0.88 0.006 270)", "tonalRamp": ["oklch(0.18 0.006 270)", "oklch(0.3 0.006 270)", "oklch(0.45 0.006 270)", "oklch(0.6 0.006 270)", "oklch(0.72 0.006 270)", "oklch(0.8 0.006 270)", "oklch(0.88 0.006 270)", "oklch(0.95 0.004 270)"] },
+      "amber-ink": { "role": "tertiary", "displayName": "Hold Ink", "canonical": "oklch(0.48 0.14 48)", "tonalRamp": ["oklch(0.2 0.1 48)", "oklch(0.28 0.12 48)", "oklch(0.38 0.13 48)", "oklch(0.48 0.14 48)", "oklch(0.58 0.15 48)", "oklch(0.7 0.14 48)", "oklch(0.85 0.09 55)", "oklch(0.95 0.04 62)"] },
+      "amber-wash": { "role": "tertiary", "displayName": "Hold Wash", "canonical": "oklch(0.96 0.045 65)", "tonalRamp": ["oklch(0.2 0.05 65)", "oklch(0.35 0.06 65)", "oklch(0.5 0.07 65)", "oklch(0.65 0.08 65)", "oklch(0.78 0.08 65)", "oklch(0.88 0.07 65)", "oklch(0.93 0.055 65)", "oklch(0.96 0.045 65)"] }
+    },
+    "typographyMeta": {
+      "verdict": { "displayName": "Verdict", "purpose": "One plain sentence at the top of each tab." },
+      "pass-value": { "displayName": "Pass value", "purpose": "The big value in a pass cell." },
+      "brand": { "displayName": "Brand", "purpose": "Uppercase product name in the top bar." },
+      "heading": { "displayName": "Heading", "purpose": "Section and chart headings." },
+      "body": { "displayName": "Body", "purpose": "Default text and tab labels." },
+      "note": { "displayName": "Note", "purpose": "Explains a table or chart. Max 60ch." },
+      "label": { "displayName": "Label", "purpose": "Caption inside a pass cell and table column header only." },
+      "board-figure": { "displayName": "Board figure", "purpose": "Tabular mono figures in tables and inline numbers." }
+    },
+    "shadows": [
+      { "name": "tab-underline", "value": "inset 0 -4px 0 oklch(0.7 0.19 48)", "purpose": "Active tab marker. Drawn as a line, not a shadow." },
+      { "name": "selected-row-line", "value": "inset 0 -2px 0 oklch(0.18 0.012 270)", "purpose": "Selected lead row on the rain board." }
+    ],
+    "motion": [
+      { "name": "reduced-motion", "value": "animation: none; transition: none", "purpose": "All motion is off under prefers-reduced-motion. The build defines no other motion tokens." }
+    ],
+    "breakpoints": [
+      { "name": "narrow", "value": "640px" },
+      { "name": "medium", "value": "1100px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Top bar with tabs",
+      "kind": "nav",
+      "refersTo": "topbar",
+      "description": "Brand left, five tabs. The current tab gets a teal underline.",
+      "html": "<header class=\"ds-topbar\"><span class=\"ds-brand\">FORECAST CHECK · SERI ISKANDAR</span><nav class=\"ds-nav\"><a class=\"ds-tab\" href=\"#\" aria-current=\"page\">Accuracy</a><a class=\"ds-tab\" href=\"#\">Live</a><a class=\"ds-tab\" href=\"#\">Run health</a></nav></header>",
+      "css": ".ds-topbar { display: flex; align-items: stretch; gap: 2.2rem; padding: 0 1.5rem; border-bottom: 3px solid var(--ink, oklch(0.18 0.012 270)); min-height: 3.6rem; font-family: Archivo, system-ui, sans-serif; background: #fff; } .ds-brand { font-weight: 800; font-size: 1.1rem; letter-spacing: .02em; margin-right: auto; align-self: center; } .ds-nav { display: flex; gap: 2.2rem; } .ds-tab { display: flex; align-items: center; color: oklch(0.42 0.012 270); font-weight: 600; text-decoration: none; white-space: nowrap; } .ds-tab:hover { color: oklch(0.18 0.012 270); } .ds-tab[aria-current=\"page\"] { color: oklch(0.18 0.012 270); box-shadow: inset 0 -4px 0 oklch(0.7 0.19 48); } .ds-tab:focus-visible { outline: 3px solid oklch(0.7 0.19 48); outline-offset: 2px; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Preset date range. Current chip fills with ink.",
+      "html": "<a class=\"ds-chip\" href=\"#\">All data</a> <a class=\"ds-chip\" href=\"#\" aria-current=\"true\">Last 3 days</a>",
+      "css": ".ds-chip { display: inline-block; border: 1px solid oklch(0.88 0.006 270); border-radius: 6px; padding: .4rem .7rem; background: #fff; font: 400 .9rem Archivo, system-ui, sans-serif; color: oklch(0.18 0.012 270); text-decoration: none; } .ds-chip[aria-current=\"true\"] { background: oklch(0.18 0.012 270); color: #fff; border-color: oklch(0.18 0.012 270); } .ds-chip:focus-visible { outline: 3px solid oklch(0.7 0.19 48); outline-offset: 2px; }"
+    },
+    {
+      "name": "Demo Tag",
+      "kind": "custom",
+      "refersTo": "tag-demo",
+      "description": "Outlined tag shown only on synthetic data.",
+      "html": "<span class=\"ds-tag\">SYNTHETIC DEMO DATA</span>",
+      "css": ".ds-tag { background: oklch(1 0 0); border: 2px solid oklch(0.18 0.012 270); color: oklch(0.18 0.012 270); font: 800 .8rem Archivo, system-ui, sans-serif; letter-spacing: .06em; padding: .35rem .7rem; border-radius: 4px; }"
+    },
+    {
+      "name": "Pass Strip",
+      "kind": "card",
+      "refersTo": "pass-strip",
+      "description": "Framed row of captioned cells with dashed tear lines and a barcode block. A stale cell uses Hold Wash.",
+      "html": "<div class=\"ds-pass\"><div><small>Station</small><strong>Seri Iskandar</strong></div><div><small>Scored pairs</small><strong>1,284</strong></div><div class=\"ds-stale\"><small>Last ESP32 post</small><strong>42 min ago</strong></div><div class=\"ds-code\"></div></div>",
+      "css": ".ds-pass { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); border: 2px solid oklch(0.18 0.012 270); border-radius: 10px; overflow: hidden; font-family: Archivo, system-ui, sans-serif; background: #fff; } .ds-pass > div { padding: .5rem 1.1rem; border-right: 2px dashed oklch(0.88 0.006 270); } .ds-pass > div:last-child { border-right: 0; } .ds-pass small { display: block; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: oklch(0.42 0.012 270); font-weight: 600; } .ds-pass strong { font-size: 1.45rem; font-weight: 800; font-variant-numeric: tabular-nums; } .ds-pass .ds-stale { background: oklch(0.96 0.045 65); color: oklch(0.48 0.14 48); } .ds-pass .ds-code { padding: 0; min-width: 5rem; background: repeating-linear-gradient(90deg, oklch(0.18 0.012 270) 0 3px, #fff 3px 5px, oklch(0.18 0.012 270) 5px 6px, #fff 6px 10px); }"
+    },
+    {
+      "name": "Board Table",
+      "kind": "custom",
+      "refersTo": "board-row-hold",
+      "description": "Gate board. Mono tabular figures, ruled rows, status column. A missing hour lights its cell. A held row lights the whole row.",
+      "html": "<table class=\"ds-board\"><thead><tr><th>Hours ahead</th><th class=\"r\">Temp error<small>°C, vs ESP32</small></th><th class=\"r\">n ESP32</th><th>Status</th></tr></thead><tbody><tr><td>06 h</td><td class=\"r\">0.84</td><td class=\"r\">212</td><td>ON TIME</td></tr><tr><td>12 h</td><td class=\"r\">1.10</td><td class=\"r\">198</td><td class=\"hold-cell\">4 h MISSING</td></tr><tr class=\"hold\"><td>18 h</td><td class=\"r\">1.35</td><td class=\"r\">160</td><td>31 h MISSING</td></tr></tbody></table>",
+      "css": ".ds-board { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .98rem; font-variant-numeric: tabular-nums; color: oklch(0.18 0.012 270); } .ds-board th { text-align: left; font-family: Archivo, system-ui, sans-serif; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: oklch(0.42 0.012 270); font-weight: 600; padding: .45rem .7rem; border-bottom: 2px solid oklch(0.18 0.012 270); white-space: nowrap; vertical-align: bottom; } .ds-board th small { display: block; letter-spacing: 0; text-transform: none; font-weight: 400; } .ds-board td { padding: .32rem .7rem; border-bottom: 1px solid oklch(0.88 0.006 270); white-space: nowrap; } .ds-board .r { text-align: right; } .ds-board th.r { text-align: right; } .ds-board tr.hold td, .ds-board td.hold-cell { background: oklch(0.96 0.045 65); color: oklch(0.48 0.14 48); font-weight: 600; }"
+    },
+    {
+      "name": "Empty State",
+      "kind": "custom",
+      "refersTo": "empty-note",
+      "description": "Dashed box that says what is missing and what to do.",
+      "html": "<div class=\"ds-empty\">No forecast hours fall in this window yet. Widen the dates, or wait for the collector to run for an hour.</div>",
+      "css": ".ds-empty { border: 1px dashed oklch(0.42 0.012 270); border-radius: 8px; padding: 1.2rem 1.4rem; color: oklch(0.42 0.012 270); max-width: 46rem; font-family: Archivo, system-ui, sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Gate Board",
+    "overview": "Every forecast lead hour is a departure on a board. The page judges each row against what arrived. It reads like a boarding pass pinned above a departures table, on a white page that survives being pasted into a Word report. The reader is a lecturer at a desk. The theme is light, only light.\n\nThe system is flat and ruled. Depth comes from rules, dashed tear lines and weight, never from shadow or gradient. Figures are monospaced and tabular so columns align. Archivo carries every label and sentence. JetBrains Mono carries figures only. One orange marks the places where data is missing or late. A deep teal marks the current place. The only texture is the barcode block at the end of the pass strip.\n\nEvery number sits beside its n and its gaps. Missing data is shown as missing. It is never filled, smoothed or counted as zero.",
+    "keyCharacteristics": [
+      "White paper, tinted near-black ink, a teal primary and one alert orange.",
+      "Segmented pass strip with dashed tear lines and a barcode block.",
+      "Board tables with tabular mono figures and ruled rows.",
+      "Hairline rules, heavy 3px ink rule under the top bar. No shadows, no gradients.",
+      "A plain-sentence verdict heading leads each tab."
+    ],
+    "rules": [
+      { "name": "The One Alert Rule", "body": "Orange means a gap, a hold, a stale reading or a warning. Teal marks the current place (active tab, focus, selection). Neither decorates and neither encodes a good value.", "section": "colors" },
+      { "name": "The Held Row Rule", "body": "A row with any missing hour lights its status cell in Hold Wash. A row with 10% or more missing lights the whole row. Missing is never hidden and never counted as dry.", "section": "colors" },
+      { "name": "The Two Lines Rule", "body": "Actual is ink, forecast is blue. No third chart color exists.", "section": "colors" },
+      { "name": "The Figures Only Rule", "body": "Mono is for numbers and nothing else. Words stay in Archivo.", "section": "typography" },
+      { "name": "The Sentence First Rule", "body": "Each tab opens with a full-sentence verdict. No title-case page title, no small caps line above it.", "section": "typography" },
+      { "name": "The Flat Rule", "body": "No blur shadow, no glow, no gradient fill. A repeating stripe is allowed for the barcode and for no-data heatmap cells, and for nothing else.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do write the verdict as one plain sentence with the headline figure in mono.",
+      "Do show n and missing count beside every error figure.",
+      "Do leave missing data as a gap, a stripe or the word \"no data\".",
+      "Do use Gate Ink for the actual line and Forecast Blue for the forecast line.",
+      "Do keep the 3px teal focus ring (2px offset) on every focusable element.",
+      "Do keep figures in tabular mono and right align numeric columns.",
+      "Do honor reduced motion. Animations and transitions are off under `prefers-reduced-motion`."
+    ],
+    "donts": [
+      "Don't use orange for anything good, neutral or decorative. It marks gaps, holds and warnings only.",
+      "Don't add shadows, gradients or glow.",
+      "Don't build KPI tiles, rounded cards on grey, or weather-app cards with icons.",
+      "Don't fill, interpolate or zero a missing hour.",
+      "Don't put mono type on words.",
+      "Don't add a dark theme. The page is a white report page.",
+      "Don't put small uppercase label lines above headings or verdicts. Uppercase tracked labels belong inside pass cells and table headers only."
+    ]
+  }
+}
