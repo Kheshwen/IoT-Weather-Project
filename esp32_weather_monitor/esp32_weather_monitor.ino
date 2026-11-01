@@ -12,8 +12,9 @@
 const char* ssid     = "YOUR_WIFI_SSID";
 const char* password = "YOUR_WIFI_PASSWORD";
 
-// Seri Iskandar Coordinates (4.3597° N, 100.9782° E)
-const char* apiUrl = "https://api.open-meteo.com/v1/forecast?latitude=4.3597&longitude=100.9782&hourly=precipitation_probability,precipitation&current=temperature_2m,relative_humidity_2m,precipitation&timezone=Asia%2FKuala_Lumpur&forecast_hours=6";
+// Weather server (Vercel). The server reads Open-Meteo, the ESP32 only posts its own readings.
+const char* ingestUrl   = "https://iot-weather-phi.vercel.app/api/ingest";
+const char* deviceToken = "PASTE_DEVICE_TOKEN";
 
 // Hardware Pin Definitions
 #define I2C_SDA     22
@@ -41,9 +42,9 @@ float localPressure = 0.0;
 int   localRainPercent = 0;
 bool  bmeFound = false;
 
-// Open-Meteo Cloud Metrics
+// Server reply: rain chance for the next full hour, and the 60% flag
 int   upcomingRainProb = 0;
-float cloudPrecip = 0.0;
+bool  rainFlag = false;
 bool  apiSuccess = false;
 
 // Connectivity & State Control
@@ -51,8 +52,8 @@ bool isOnline = false;
 unsigned long lastWifiRetry = 0;
 const unsigned long WIFI_RETRY_INTERVAL = 30000; // Retry Wi-Fi every 30s when offline
 
-unsigned long lastApiFetch = 0;
-const unsigned long API_INTERVAL = 10 * 60 * 1000; // Poll Open-Meteo every 10 minutes
+unsigned long lastPost = 0;
+const unsigned long POST_INTERVAL = 5UL * 60 * 1000; // Post a reading every 5 minutes
 
 unsigned long lastSensorPoll = 0;
 const unsigned long SENSOR_INTERVAL = 1000; // Read sensors & evaluate alerts every 1s
@@ -67,29 +68,44 @@ void setLEDs(bool red, bool yellow, bool green) {
   digitalWrite(GREEN_PIN, green ? HIGH : LOW);
 }
 
-void fetchOpenMeteoForecast() {
+// Send the latest sensor reading to the server and read the rain flag from the reply.
+void postReading() {
   if (WiFi.status() != WL_CONNECTED) {
     isOnline = false;
     return;
   }
+  // Never post a reading the BME280 did not produce.
+  if (!bmeFound || isnan(localTemp) || isnan(localHumidity) || isnan(localPressure)) return;
 
   WiFiClientSecure client;
   client.setInsecure(); // Bypass TLS root certificate verification
   HTTPClient http;
+  http.setTimeout(8000);
+  if (!http.begin(client, ingestUrl)) return;
+  http.addHeader("Content-Type", "application/json");
+  http.addHeader("x-device-token", deviceToken);
 
-  if (http.begin(client, apiUrl)) {
-    int httpCode = http.GET();
-    if (httpCode == HTTP_CODE_OK) {
-      JsonDocument doc;
-      DeserializationError err = deserializeJson(doc, http.getString());
-      if (!err) {
-        upcomingRainProb = doc["hourly"]["precipitation_probability"][1] | 0;
-        cloudPrecip      = doc["current"]["precipitation"] | 0.0;
-        apiSuccess = true;
-      }
+  JsonDocument body;
+  body["temperature_c"] = localTemp;
+  body["humidity_pct"]  = localHumidity;
+  body["pressure_hpa"]  = localPressure;
+  body["rain_pct"]      = localRainPercent;
+  body["is_wet"]        = localRainPercent > 35; // same threshold as the red alert
+  String payload;
+  serializeJson(body, payload);
+
+  int httpCode = http.POST(payload);
+  if (httpCode == HTTP_CODE_OK) {
+    JsonDocument reply;
+    if (!deserializeJson(reply, http.getString())) {
+      rainFlag         = reply["rain_flag"] | false;
+      upcomingRainProb = reply["precip_prob_pct"] | 0;
+      apiSuccess = true;
     }
-    http.end();
+  } else {
+    Serial.printf("POST failed, HTTP %d\n", httpCode);
   }
+  http.end();
 }
 
 void readLocalSensors() {
@@ -109,8 +125,8 @@ void updateAlertSystem() {
     // Red Alert: Water droplets detected directly on hardware sensor plate
     setLEDs(true, false, false);
     tone(BUZZER_PIN, 1200, 80);
-  } else if ((isOnline && (upcomingRainProb >= 60 || cloudPrecip > 0.5)) || (!isOnline && localRainPercent > 15)) {
-    // Yellow Alert: Rain imminent (Open-Meteo prediction >= 60% OR slight moisture detected offline)
+  } else if ((isOnline && rainFlag) || (!isOnline && localRainPercent > 15)) {
+    // Yellow Alert: Rain imminent (server flag, rain chance >= 60% OR slight moisture detected offline)
     setLEDs(false, true, false);
     tone(BUZZER_PIN, 700, 30);
   } else {
@@ -129,7 +145,7 @@ void renderScreen() {
   display.setCursor(0, 0);
   if (localRainPercent > 35) {
     display.print(F("ALERT: RAIN DETECTED"));
-  } else if (isOnline && upcomingRainProb >= 60) {
+  } else if (isOnline && rainFlag) {
     display.print(F("WARN: RAIN IMMINENT"));
   } else {
     display.print(isOnline ? F("NODE: ONLINE [WiFi]") : F("NODE: OFFLINE [LOCAL]"));
@@ -161,15 +177,15 @@ void renderScreen() {
     display.fillRect(72, 58, barFill, 3, SSD1306_WHITE);
 
   } else {
-    // PAGE 1: Open-Meteo Forecast (Only shown when Online)
+    // PAGE 1: Forecast from the server (Only shown when Online)
     display.setCursor(0, 14);
-    display.print(F("[OPEN-METEO 4.36N]"));
+    display.print(F("[FORECAST 4.36N]"));
 
     display.setCursor(0, 26);
     display.printf("Rain Prob: %d %%", upcomingRainProb);
 
     display.setCursor(0, 38);
-    display.printf("Precip: %.1f mm", cloudPrecip);
+    display.printf("Rain flag: %s", rainFlag ? "YES" : "NO");
 
     display.setCursor(0, 50);
     display.print(F("Forecast Horizon: +1h"));
@@ -225,8 +241,9 @@ void setup() {
   if (WiFi.status() == WL_CONNECTED) {
     isOnline = true;
     Serial.println(F("\nWiFi Connected!"));
-    fetchOpenMeteoForecast();
-    lastApiFetch = millis();
+    readLocalSensors(); // first post must carry real values
+    postReading();
+    lastPost = millis();
   } else {
     isOnline = false;
     Serial.println(F("\nWiFi Failed / Timed out. Starting in Local Mode."));
@@ -248,10 +265,10 @@ void loop() {
       isOnline = false;
       Serial.println(F("WiFi connection lost. Switched to Local Mode."));
     } else {
-      // Periodic Open-Meteo API fetch
-      if (currentMillis - lastApiFetch >= API_INTERVAL) {
-        lastApiFetch = currentMillis;
-        fetchOpenMeteoForecast();
+      // Periodic reading post
+      if (currentMillis - lastPost >= POST_INTERVAL) {
+        lastPost = currentMillis;
+        postReading();
       }
     }
   } else {
@@ -262,8 +279,8 @@ void loop() {
       if (WiFi.status() == WL_CONNECTED || WiFi.reconnect()) {
         isOnline = true;
         Serial.println(F("WiFi re-established!"));
-        fetchOpenMeteoForecast();
-        lastApiFetch = currentMillis;
+        postReading();
+        lastPost = currentMillis;
       }
     }
   }
