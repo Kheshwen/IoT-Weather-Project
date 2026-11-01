@@ -9,17 +9,17 @@
 #include <Adafruit_BME280.h>
 
 // Wi-Fi Configuration
-const char* ssid     = "YOUR_WIFI_SSID";
-const char* password = "YOUR_WIFI_PASSWORD";
+const char* ssid     = "asher";
+const char* password = "12345678";
 
 // Seri Iskandar Coordinates (4.3597° N, 100.9782° E)
 const char* apiUrl = "https://api.open-meteo.com/v1/forecast?latitude=4.3597&longitude=100.9782&hourly=precipitation_probability,precipitation&current=temperature_2m,relative_humidity_2m,precipitation&timezone=Asia%2FKuala_Lumpur&forecast_hours=6";
 
 // Hardware Pin Definitions
-#define I2C_SDA     22
-#define I2C_SCL     23
+#define I2C_SDA    22
+#define I2C_SCL    23
 
-#define RED_PIN     25
+#define RED_PIN    25
 #define YELLOW_PIN  26
 #define GREEN_PIN   27
 #define BUZZER_PIN  18
@@ -60,6 +60,10 @@ const unsigned long SENSOR_INTERVAL = 1000; // Read sensors & evaluate alerts ev
 unsigned long lastDisplaySwitch = 0;
 const unsigned long SCREEN_SWITCH_INTERVAL = 4000; // Alternate screens every 4s if online
 int displayPage = 0;
+
+// JSON Export for Python Bridge
+unsigned long lastJsonExport = 0;
+const unsigned long JSON_INTERVAL = 10000; // Send JSON via Serial every 10 seconds
 
 void setLEDs(bool red, bool yellow, bool green) {
   digitalWrite(RED_PIN, red ? HIGH : LOW);
@@ -136,8 +140,6 @@ void renderScreen() {
   }
   display.drawLine(0, 10, SCREEN_WIDTH, 10, SSD1306_WHITE);
 
-  // Determine what to display:
-  // If offline, ALWAYS stay on Local Sensor View (Page 0)
   if (!isOnline || displayPage == 0) {
     // PAGE 0: Local Observation (BME280 + Rain Sensor)
     display.setCursor(0, 14);
@@ -155,7 +157,6 @@ void renderScreen() {
     display.setCursor(0, 56);
     display.printf("Plate: %d%%", localRainPercent);
 
-    // Visual gauge bar for physical moisture
     display.drawRect(70, 56, 56, 7, SSD1306_WHITE);
     int barFill = map(localRainPercent, 0, 100, 0, 52);
     display.fillRect(72, 58, barFill, 3, SSD1306_WHITE);
@@ -187,10 +188,8 @@ void setup() {
 
   Serial.begin(115200);
 
-  // Start I2C bus on GPIO 22 (SDA) and GPIO 23 (SCL)
   Wire.begin(I2C_SDA, I2C_SCL);
 
-  // Initialize OLED (Check 0x3C first, then 0x3D)
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     display.begin(SSD1306_SWITCHCAPVCC, 0x3D);
   }
@@ -204,7 +203,6 @@ void setup() {
   display.println(F("(Timeout: 6 sec)"));
   display.display();
 
-  // Initialize BME280 (Address 0x76 or 0x77)
   if (bme.begin(0x76, &Wire) || bme.begin(0x77, &Wire)) {
     bmeFound = true;
     Serial.println(F("BME280 found."));
@@ -212,7 +210,6 @@ void setup() {
     Serial.println(F("BME280 not detected on D22/D23."));
   }
 
-  // Attempt Wi-Fi Connection (Bounded to 6 seconds)
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   unsigned long startWifi = millis();
@@ -230,11 +227,9 @@ void setup() {
   } else {
     isOnline = false;
     Serial.println(F("\nWiFi Failed / Timed out. Starting in Local Mode."));
-    // Short audible notification that node started offline
     tone(BUZZER_PIN, 440, 200);
   }
 
-  // Initial sensor read and screen render
   readLocalSensors();
   renderScreen();
 }
@@ -248,14 +243,12 @@ void loop() {
       isOnline = false;
       Serial.println(F("WiFi connection lost. Switched to Local Mode."));
     } else {
-      // Periodic Open-Meteo API fetch
       if (currentMillis - lastApiFetch >= API_INTERVAL) {
         lastApiFetch = currentMillis;
         fetchOpenMeteoForecast();
       }
     }
   } else {
-    // Offline Mode: Attempt silent reconnect every 30 seconds
     if (currentMillis - lastWifiRetry >= WIFI_RETRY_INTERVAL) {
       lastWifiRetry = currentMillis;
       Serial.println(F("Attempting background WiFi reconnect..."));
@@ -277,18 +270,24 @@ void loop() {
 
   // 3. Screen Update Controller
   if (isOnline) {
-    // Online: Cycle between Local (Page 0) and Forecast (Page 1)
     if (currentMillis - lastDisplaySwitch >= SCREEN_SWITCH_INTERVAL) {
       lastDisplaySwitch = currentMillis;
       displayPage = (displayPage == 0) ? 1 : 0;
       renderScreen();
     }
   } else {
-    // Offline: Lock to Local view and refresh every 1s
     if (currentMillis - lastDisplaySwitch >= 1000) {
       lastDisplaySwitch = currentMillis;
       displayPage = 0;
       renderScreen();
     }
+  }
+
+  // 4. JSON Export for Python Bridge (Every 10s)
+  if (currentMillis - lastJsonExport >= JSON_INTERVAL) {
+    lastJsonExport = currentMillis;
+    // Print purely the JSON payload on its own line
+    Serial.printf("{\"temperature\": %.2f, \"humidity\": %.2f, \"pressure\": %.2f, \"rain_percent\": %d}\n", 
+                  localTemp, localHumidity, localPressure, localRainPercent);
   }
 }
